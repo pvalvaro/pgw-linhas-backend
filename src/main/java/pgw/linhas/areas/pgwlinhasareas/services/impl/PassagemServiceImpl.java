@@ -6,7 +6,6 @@ import pgw.linhas.areas.pgwlinhasareas.dtos.PassagemDto;
 import pgw.linhas.areas.pgwlinhasareas.models.*;
 import pgw.linhas.areas.pgwlinhasareas.repositories.*;
 import pgw.linhas.areas.pgwlinhasareas.services.PassagemService;
-import pgw.linhas.areas.pgwlinhasareas.services.VooService;
 import pgw.linhas.areas.pgwlinhasareas.util.Util;
 
 import java.util.*;
@@ -34,16 +33,20 @@ public class PassagemServiceImpl implements PassagemService {
     @Override
     public List<Passagem> comprarPassagem(CompraPassagemDTO dto) {
         Passagem passagem = new Passagem();
+
         Voo voo = vooRepository.findById(dto.getVooId()).get();
+        dto.setVoo(voo);
+
         //persisitir visitante
         Visitante visitante =  visitanteRepository.save(dto.getVisitante());
         dto.setVisitante(visitante);
-        dto.setVoo(voo);
+
         double valorPorPassagem = (double) dto.getTotalValor() / dto.getPassageiros().size();
         dto.setTotalValor(valorPorPassagem);
 
         Classe classe = classeRepository.findById(dto.getClasseId()).get();
         Passagem passgemSalva = new Passagem();
+
         for (Passageiro passageiro: dto.getPassageiros()) {
             util.copiarPropriedades(dto, passagem);
             passagem.setPassageiro(passageiro);
@@ -54,24 +57,14 @@ public class PassagemServiceImpl implements PassagemService {
             passgemSalva = new Passagem();
             passagem = new Passagem();
         }
-       // passagemRepository.saveAll(novaPassagem);
-        List<Passagem> novaPassagem = new ArrayList<>(passagemListaCompradas.values());
+
+        List<Passagem> passagensCompradas = new ArrayList<>(passagemListaCompradas.values());
+
         //atualizar voo
-        Integer totalAssentosAtualizacao = voo.getTotalAssentos() -  novaPassagem.size();
+        Integer totalAssentosAtualizacao = voo.getTotalAssentos() -  passagensCompradas.size();
         voo.setTotalAssentos(totalAssentosAtualizacao);
         vooRepository.save(voo);
-        return novaPassagem;
-    }
-
-    public List<Passagem> salvarNovaPassagem(List<Passagem> passagens){
-        return passagemRepository.saveAll(passagens);
-    }
-    public void salvarNovaPassa(Passageiro passageiro, Passagem passagemInd){
-        Passagem passgemSalva = new Passagem();
-        passagemInd.setPassageiro(passageiroRepository.save(passageiro));
-        passagemInd.setPassagemNumero("PWG"+passagemInd.getPassageiro().getCpf());
-
-        passagemListaCompradas.put("'"+ passagemInd.getPassagemNumero()+"'", passagemInd);
+        return passagensCompradas;
     }
 
     public CompraPassagemDTO calculo(CompraPassagemDTO dto){
