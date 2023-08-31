@@ -25,6 +25,10 @@ public class Passagem implements Serializable {
 
     private double totalValor;
 
+    private String status;
+
+    private Integer qtdBagagem;
+
     @OneToOne
     @JoinColumn(name = "voo_id")
     private Voo voo;

@@ -16,6 +16,7 @@ public class VooDto {
     private Long origem_id;
     private Long destino_id;
     private Integer totalAssentos;
+    private String status;
 
     public static VooDto convertVooToDTO(Voo voo){
         VooDto vooDto = new VooDto();

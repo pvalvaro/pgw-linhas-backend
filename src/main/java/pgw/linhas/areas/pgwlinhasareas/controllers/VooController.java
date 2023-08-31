@@ -2,6 +2,7 @@ package pgw.linhas.areas.pgwlinhasareas.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pgw.linhas.areas.pgwlinhasareas.dtos.VooDto;
 import pgw.linhas.areas.pgwlinhasareas.models.Voo;
@@ -22,20 +23,13 @@ public class VooController {
         this.vooService = vooService;
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_GESTOR')")
     @PostMapping
     public ResponseEntity<Object> cadastrarVoo(@RequestBody VooDto dto){
-       /* if(dto.getOrigem().equals(dto.getDestino())) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Voo não pode ter a mesma origem e destino");
-        }
-        if(dto.getEconomica().isEmpty() || dto.getExecutiva().isEmpty() || dto.getPrimeira().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Voo sem nenhuma classe");
-        }
-        if(VooDto.somaAssentos(dto) == 0){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Soma dos Assentos por classe é maior que o suportado pelo voo!");
-        }*/
         return ResponseEntity.status(HttpStatus.CREATED).body(vooService.cadastrarVoos(dto));
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_GESTOR', 'ROLE_USER')")
     @GetMapping("/voos")
     public ResponseEntity<List<VooDto>> pesquisarVoos(
             @RequestParam String origem,
@@ -43,7 +37,7 @@ public class VooController {
             @RequestParam String dataPartida){
         return ResponseEntity.status(HttpStatus.OK).body(vooService.recuperarVoos());
     }
-
+    @PreAuthorize("hasAnyRole('ROLE_GESTOR', 'ROLE_USER')")
     @GetMapping("/{id}")
     public ResponseEntity<Object> recuperarVoo(@PathVariable(value = "id") long id){
         Optional<Voo> vooOptional = vooService.findById(id);
@@ -54,6 +48,7 @@ public class VooController {
     }
 
     //altera voo
+    @PreAuthorize("hasAnyRole('ROLE_GESTOR')")
     @PutMapping("/{id}")
     public ResponseEntity<Object> alterarVoo(@PathVariable(value = "id") long id, @RequestBody @Valid VooDto vooDto){
         Optional<Voo> vooOptional = vooService.findById(id);
@@ -62,10 +57,11 @@ public class VooController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(vooService.alterarVoo(vooDto, vooOptional));
     }
-/*
+
+    @PreAuthorize("hasAnyRole('ROLE_GESTOR')")
     @PatchMapping("/cancelar/{id}")
     public ResponseEntity<Object> cancelarVoo(@PathVariable(value = "id") long id, @RequestBody VooDto vooDto){
         vooDto.setStatus("Cancelado");
         return ResponseEntity.status(HttpStatus.OK).body(vooService.cancelar(vooDto));
-    }*/
+    }
 }

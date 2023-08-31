@@ -1,8 +1,11 @@
 package pgw.linhas.areas.pgwlinhasareas.services.impl;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import pgw.linhas.areas.pgwlinhasareas.dtos.CompraPassagemDTO;
 import pgw.linhas.areas.pgwlinhasareas.dtos.PassagemDto;
+import pgw.linhas.areas.pgwlinhasareas.dtos.VoucherDTO;
 import pgw.linhas.areas.pgwlinhasareas.models.*;
 import pgw.linhas.areas.pgwlinhasareas.repositories.*;
 import pgw.linhas.areas.pgwlinhasareas.services.PassagemService;
@@ -28,7 +31,7 @@ public class PassagemServiceImpl implements PassagemService {
 
     Util util = new Util();
     Map<String, Passagem> passagemListaCompradas = new HashMap<>();
-    List<PassagemDto> passagemDtoList = new ArrayList<>();
+    List<CompraPassagemDTO> passagemDtoList = new ArrayList<>();
 
     @Override
     public List<Passagem> comprarPassagem(CompraPassagemDTO dto) {
@@ -51,6 +54,7 @@ public class PassagemServiceImpl implements PassagemService {
             util.copiarPropriedades(dto, passagem);
             passagem.setPassageiro(passageiro);
             passagem.setPassagemNumero("PWG"+passageiro.getCpf());
+            passagem.setStatus("Confirmado");
             passagem.setClasse(classe);
             passgemSalva = passagemRepository.save(passagem);
             passagemListaCompradas.put("'"+ passgemSalva.getPassagemNumero()+"'", passgemSalva);
@@ -95,22 +99,10 @@ public class PassagemServiceImpl implements PassagemService {
     }
 
     @Override
-    public List<PassagemDto> recuperarTodosPassageiros() {
-        passagemDtoList = new ArrayList<>();
-        List<Passagem> passagemList = passagemRepository.findAll();
-        PassagemDto dto = new PassagemDto();
-        for (Passagem passagem: passagemList) {
-            util.copiarPropriedades(passagem, dto);
-            passagemDtoList.add(dto);
-        }
-        return passagemDtoList;
-    }
-
-    @Override
-    public List<PassagemDto> recuperarPassagensCPFComprador(String cpf) {
+    public List<CompraPassagemDTO> recuperarPassagensCPFComprador(String cpf) {
         passagemDtoList = new ArrayList<>();
         List<Passagem> passagemList = passagemRepository.recuperarPassagensCPFComprador(cpf);
-        PassagemDto dto = new PassagemDto();
+        CompraPassagemDTO dto = new CompraPassagemDTO();
         for (Passagem passagem: passagemList) {
             util.copiarPropriedades(passagem, dto);
             passagemDtoList.add(dto);
@@ -119,10 +111,10 @@ public class PassagemServiceImpl implements PassagemService {
     }
 
     @Override
-    public List<PassagemDto> recuperarPassagemVoo(String codigo) {
+    public List<CompraPassagemDTO> recuperarPassagemVoo(String codigo) {
         passagemDtoList = new ArrayList<>();
         List<Passagem> passagemList = passagemRepository.recuperarPassagemVoo(codigo);
-        PassagemDto dto = new PassagemDto();
+        CompraPassagemDTO dto = new CompraPassagemDTO();
         for (Passagem passagem: passagemList) {
             util.copiarPropriedades(passagem, dto);
             passagemDtoList.add(dto);
@@ -131,9 +123,21 @@ public class PassagemServiceImpl implements PassagemService {
     }
 
     @Override
-    public Passagem cancelar(PassagemDto passagemDto, Optional<Passagem> optional) {
-        Passagem passagemAtual = optional.get();
-        //passagemAtual.setStatusPassagem(passagemDto.getStatusPassagem());
+    public Passagem cancelar(Long id) {
+        Optional<Passagem> optionalPassagem = passagemRepository.findById(id);
+        Passagem passagemAtual = optionalPassagem.get();
+        passagemAtual.setStatus("Cancelado");
         return passagemRepository.save(passagemAtual);
+    }
+
+    @Override
+    public VoucherDTO emitirVoucher(String numeroPassagem) {
+       /* VoucherDTO voucherDTO = new VoucherDTO();
+        Passagem passagem = passagemRepository.findByNumeroPassagem(numeroPassagem);
+        if(passagem != null){
+            voucherDTO.setNumeroPassagem(passagem.getPassagemNumero());
+           // voucherDTO.setOrigem(passagem.getVoo().getOrigem());
+        }*/
+        return null;
     }
 }

@@ -12,7 +12,8 @@ public class PgwLinhasAreasApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(PgwLinhasAreasApplication.class, args);
-		System.out.println(new BCryptPasswordEncoder().encode("senha123"));
+		System.out.println("Gestor:" + new BCryptPasswordEncoder().encode("1234"));
+		System.out.println("visitante:" + new BCryptPasswordEncoder().encode("123"));
 	}
 
 	@GetMapping("/")

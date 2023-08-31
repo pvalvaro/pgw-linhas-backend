@@ -45,18 +45,4 @@ public class UserDetailsServiceImpl implements UserDetailsService {
      * a recupera dos mesmos
      * */
 
-    public UserDetails criarUsuario(AcessoDTO acessoDTO){
-        Usuario usuario = new Usuario();
-        Role role = new Role();
-
-        usuario.setUsername(acessoDTO.getUsuario());
-        usuario.setPassword(passwordEncoder.encode(acessoDTO.getSenha()));
-        role.setNomeRole(NomeRole.ROLE_USER);
-       usuario = usuarioRepository.save(usuario);
-
-       //busca Roles
-       // role = roleRepository.findByName(NomeRole.ROLE_USER);
-
-      return usuario;
-    }
 }
